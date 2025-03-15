@@ -13,6 +13,7 @@ class Program
                 Console.WriteLine("Example: ./FairDice.exe 2,2,4,4,9,9 6,8,1,1,8,6 7,5,3,7,5,3");
                 return;
             }
+            
             int faceCount = diceList[0].GetFaceCount();
             foreach (var dice in diceList)
             {
@@ -28,6 +29,7 @@ class Program
                     return;
                 }
             }
+            
             Game game = new Game(diceList);
             game.Start();
         }

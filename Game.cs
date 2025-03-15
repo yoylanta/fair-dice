@@ -10,6 +10,7 @@ public class Game
     {
         DiceList = diceList;
     }
+    
     public void Start()
     {
         Console.WriteLine("Let's determine who makes the first move.");
@@ -44,6 +45,7 @@ public class Game
             Console.WriteLine("Invalid selection. Try again.");
         }
     }
+    
     private void SelectDice(bool userFirst)
     {
         List<int> availableIndices = Enumerable.Range(0, DiceList.Count).ToList();
@@ -64,6 +66,7 @@ public class Game
         Console.WriteLine($"You selected the dice: [{string.Join(",", userDice.Faces)}]");
         Console.WriteLine($"I selected the dice: [{string.Join(",", computerDice.Faces)}]");
     }
+    
     private Dice GetBestDiceForComputer(List<int> availableIndices, Dice? userDice)
     {
         Dice? bestChoice = null;
@@ -92,6 +95,7 @@ public class Game
         // If no better choice was found, pick a random dice
         return bestChoice ?? DiceList[availableIndices[new Random().Next(availableIndices.Count)]];
     }
+    
     private Dice PromptDiceSelection(string prompt, List<int> availableIndices)
     {
         while (true)

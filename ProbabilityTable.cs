@@ -15,11 +15,13 @@ public static class ProbabilityTable
         {
             Console.WriteLine($"D{i} = {{{ShowDiceFaces(diceList[i].Faces)}}}");
         }
+        
         var header = new List<string> { "Dice" };
         for (int j = 0; j < n; j++)
         {
             header.Add($"D{j}");
         }
+        
         var table = new ConsoleTable(header.ToArray());
         for (int i = 0; i < n; i++)
         {
@@ -38,6 +40,7 @@ public static class ProbabilityTable
             }
             table.AddRow(row.ToArray());
         }
+        
         Console.WriteLine("Winning Probabilities Table (Row dice wins over Column dice):");
         table.Write(Format.Alternative);
     }

@@ -1,9 +1,10 @@
 namespace FairDice;
+
 public static class DiceParser
 {
-    public static System.Collections.Generic.List<Dice> Parse(string[] args)
+    public static List<Dice> Parse(string[] args)
     {
-        var diceList = new System.Collections.Generic.List<Dice>();
+        var diceList = new List<Dice>();
         foreach (var arg in args)
         {
             int[] faces = arg.Split(',')

@@ -4,10 +4,12 @@ namespace FairDice;
 public class Dice
 {
     public int[] Faces { get; }
+    
     public Dice(int[] faces)
     {
         Faces = faces;
     }
+    
     public int GetFaceCount()
     {
         return Faces.Length;

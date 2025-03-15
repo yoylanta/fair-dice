@@ -15,23 +15,15 @@ public class FairRandomResult
 
 public static class FairRandomGenerator
 {
+    private const int KeySize = 32;
+    
     public static FairRandomResult Generate(int range)
     {
         using (var rng = new RNGCryptoServiceProvider())
         {
-            byte[] key = new byte[32];
+            byte[] key = new byte[KeySize];
             rng.GetBytes(key);
-
-            int number;
-            do
-            {
-                byte[] randomBytes = new byte[4];
-                rng.GetBytes(randomBytes);
-                number = BitConverter.ToInt32(randomBytes, 0) & int.MaxValue;
-            } while (number >= int.MaxValue - (int.MaxValue % range));
-
-            number %= range;
-
+            var number = RandomNumberGenerator.GetInt32(0, range);
             var hmac = new HMac(new Sha3Digest(256)); // HMAC-SHA3-256
             hmac.Init(new KeyParameter(key));
             byte[] hash = new byte[hmac.GetMacSize()];
