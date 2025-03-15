@@ -10,7 +10,7 @@ class Program
             if (diceList.Count < 3)
             {
                 Console.WriteLine("Error: At least 3 dice configurations are required.");
-                Console.WriteLine("Example: game.exe 2,2,4,4,9,9 6,8,1,1,8,6 7,5,3,7,5,3");
+                Console.WriteLine("Example: ./FairDice.exe 2,2,4,4,9,9 6,8,1,1,8,6 7,5,3,7,5,3");
                 return;
             }
             int faceCount = diceList[0].GetFaceCount();
