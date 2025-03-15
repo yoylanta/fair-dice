@@ -10,11 +10,9 @@ public class Game
     {
         DiceList = diceList;
     }
-
     public void Start()
     {
         Console.WriteLine("Let's determine who makes the first move.");
-        // First fair generation: computer picks a random 0 or 1.
         FairRandomResult fairResult = FairRandomGenerator.Generate(2);
         int computerBit = fairResult.Number;
         Console.WriteLine($"I selected a random value in the range 0..1 (HMAC={fairResult.Hmac}).");
@@ -49,53 +47,51 @@ public class Game
     private void SelectDice(bool userFirst)
     {
         List<int> availableIndices = Enumerable.Range(0, DiceList.Count).ToList();
+        
         if (userFirst)
         {
             userDice = PromptDiceSelection("Choose your dice:", availableIndices);
+            computerDice = GetBestDiceForComputer(availableIndices, userDice);
             availableIndices.Remove(DiceList.IndexOf(userDice));
-            // Initialize variables to track the best choice for the computer
-            double bestWinningProbability = 0.0;
-            Dice bestChoice = null;
-            // Computer selects the dice with the highest probability of winning
-            foreach (int index in availableIndices)
-            {
-                Dice candidateDice = DiceList[index];
-                double winningProbability = ProbabilityCalculator.CalculateWinningProbability(candidateDice, userDice);
-                // Update the best choice if the current candidate has a higher winning probability
-                if (winningProbability > bestWinningProbability)
-                {
-                    bestWinningProbability = winningProbability;
-                    bestChoice = candidateDice;
-                }
-            }
-            if (bestChoice == null)
-            {
-                // Computer randomly selects from the available dice
-                Random rnd = new Random();
-                int randomChoiceIndex = availableIndices[rnd.Next(availableIndices.Count)];
-                computerDice = DiceList[randomChoiceIndex];
-            }
-            else
-            {
-                // The computer selects the best dice based on winning probability
-                computerDice = bestChoice;
-            }
-            Console.WriteLine($"You selected the dice: [{string.Join(",", userDice.Faces)}]");
-            Console.WriteLine($"I selected the dice: [{string.Join(",", computerDice.Faces)}]");
         }
         else
         {
-            // Computer selects first.
-            Random rnd = new Random();
-            int compChoice = availableIndices[rnd.Next(availableIndices.Count)];
-            computerDice = DiceList[compChoice];
-            Console.WriteLine($"I selected the dice: [{string.Join(",", computerDice.Faces)}]");
-            availableIndices.Remove(compChoice);
-            userDice = PromptDiceSelection("Choose your dice (from the remaining):", availableIndices);
-            Console.WriteLine($"You selected the dice: [{string.Join(",", userDice.Faces)}]");
+            computerDice = GetBestDiceForComputer(availableIndices, null);
+            availableIndices.Remove(DiceList.IndexOf(computerDice));
+            userDice = PromptDiceSelection("Choose your dice:", availableIndices);
         }
-    }
 
+        Console.WriteLine($"You selected the dice: [{string.Join(",", userDice.Faces)}]");
+        Console.WriteLine($"I selected the dice: [{string.Join(",", computerDice.Faces)}]");
+    }
+    private Dice GetBestDiceForComputer(List<int> availableIndices, Dice? userDice)
+    {
+        Dice? bestChoice = null;
+
+        if (userDice is not null)
+        {
+            bestChoice = availableIndices
+                .Select(index => DiceList[index])
+                .OrderByDescending(dice => ProbabilityCalculator.CalculateWinningProbability(dice, userDice))
+                .FirstOrDefault();
+        }
+        else
+        {
+            bestChoice = availableIndices
+                .Select(index => DiceList[index])
+                .OrderByDescending(candidateDice =>
+                    availableIndices
+                        .Where(index => DiceList[index] != candidateDice)
+                        .Select(comparisonDice => ProbabilityCalculator.CalculateWinningProbability(candidateDice, DiceList[comparisonDice]))
+                        .DefaultIfEmpty(1.0)
+                        .Min()
+                )
+                .FirstOrDefault();
+        }
+
+        // If no better choice was found, pick a random dice
+        return bestChoice ?? DiceList[availableIndices[new Random().Next(availableIndices.Count)]];
+    }
     private Dice PromptDiceSelection(string prompt, List<int> availableIndices)
     {
         while (true)
@@ -123,6 +119,7 @@ public class Game
             Console.WriteLine("Invalid selection. Try again.");
         }
     }
+
     // Each party performs a throw using their dice.
     private void PlayThrows()
     {
@@ -143,6 +140,7 @@ public class Game
         else
             Console.WriteLine($"It's a tie!({userThrow}={computerThrow})");
     }
+
     // Implements the fair random protocol for a dice throw.
     private int GetFairDiceIndex(Dice dice)
     {
